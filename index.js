@@ -2,6 +2,7 @@ import { writeFile, readFile, appendFile, open } from "node:fs/promises";
 import { stdin as input, stdout as output } from 'node:process';
 import * as readline from 'node:readline/promises';
 import { asyncReadFile } from './readTextFile.js';
+import { createReadStream } from 'node:fs';
 // process.version
 
 
@@ -64,26 +65,41 @@ const enterDataToTxt = async function () {
 
 // not work
 async function readLinesFromText() {
-    // const fd = await open('./i.txt');
+    const fd = await open('./name.txt');
     // console.log(fd);
-    // for (const lineObj of fd.readLines()) {
-    //     console.log(lineObj);
-    // }
-    const rl = readline.createInterface({ input, output, terminal: false });
-    const fd = await open("./users.txt", "a+");
-    const SearchByNameOrID = await rl.question("Enter the name or id you are looking for");
-    let userInfo = "";
-
-    for await (const line of fd.readLines()) {
-        if (line.includes(`The name | id  : ${SearchByNameOrID}`)) {
-            userInfo = line.split("|");
-            for (const info of userInfo) {
-                console.log(info.trimStart());
-            }
-        }
+    for (const lineObj of fd.readLines()) {
+        console.log(lineObj);
     }
+    // const rl = readline.createInterface({ input, output, terminal: false });
+    // const fd = await open("./users.txt", "a+");
+    // const SearchByNameOrID = await rl.question("Enter the name or id you are looking for");
+    // let userInfo = "";
+    // for await (const line of fd.readLines()) {
+    //     if (line.includes(`The name | id  : ${SearchByNameOrID}`)) {
+    //         userInfo = line.split("|");
+    //         for (const info of userInfo) {
+    //             console.log(info.trimStart());
+    //         }
+    //     }
+    // }
 }
-readLinesFromText();
+// readLinesFromText();
+
+async function ReadLineByLine() {
+    const fileStream = await createReadStream('name.txt');
+      const rl = readline.createInterface({
+        input: fileStream,
+        crlfDelay: Infinity
+      });
+      // Note: we use the crlfDelay option to recognize all instances of CR LF
+      // ('\r\n') in input.txt as a single line break.
+    
+      for await (const line of rl) {
+        // Each line in input.txt will be successively available here as `line`.
+        console.log(`Line from file: ${line}`.includes("David"));
+      }
+    }
+    ReadLineByLine();
 
 
 
