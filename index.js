@@ -1,25 +1,10 @@
-import { writeFile, readFile, appendFile, open } from "node:fs/promises";
+import { appendFile } from "node:fs/promises";
 import { stdin as input, stdout as output } from 'node:process';
 import * as readline from 'node:readline/promises';
-import { asyncReadFile } from './readTextFile.js';
-import { createReadStream } from 'node:fs';
+// import { asyncReadFile } from './readTextFile.js';
+import { createReadStream } from "node:fs";
 // process.version
 
-
-//This function checks if the user wants to read or write information
-async function writeOrReadFile() {
-    const rl = await readline.createInterface({ input, output, terminal: false });
-    const question = await rl.question(`Do you want to enter information or read ?`);
-    if (question.includes("W")) {
-        enterDataToTxt();
-    } else if (question.includes("R")) {
-        asyncReadFile('./i.txt');
-        // readLinesFromText();
-    } else {
-        console.log("you don't enter Something Right");
-    }
-}
-// writeOrReadFile();
 
 
 //Receives input from the user and enters it into a text file
@@ -62,53 +47,54 @@ const enterDataToTxt = async function () {
     rl.close();
 }
 
-
-// not work
-async function readLinesFromText() {
-    const fd = await open('./name.txt');
-    // console.log(fd);
-    for (const lineObj of fd.readLines()) {
-        console.log(lineObj);
+//Read the Text file Line by Line:
+async function readLineByLine() {
+    const rlQuestion = readline.createInterface({ input, output, terminal: false });
+    let searchByNameOrID = await rlQuestion.question("Enter the name or id you are looking for ! ");
+    while (!searchByNameOrID) {
+        console.log("You did not enter your choice!!");
+        searchByNameOrID = await rlQuestion.question("Enter the name or id you are looking for ! ")
     }
-    // const rl = readline.createInterface({ input, output, terminal: false });
-    // const fd = await open("./users.txt", "a+");
-    // const SearchByNameOrID = await rl.question("Enter the name or id you are looking for");
-    // let userInfo = "";
-    // for await (const line of fd.readLines()) {
-    //     if (line.includes(`The name | id  : ${SearchByNameOrID}`)) {
-    //         userInfo = line.split("|");
-    //         for (const info of userInfo) {
-    //             console.log(info.trimStart());
-    //         }
-    //     }
-    // }
-}
-// readLinesFromText();
-
-async function ReadLineByLine() {
     const fileStream = await createReadStream('name.txt');
-      const rl = readline.createInterface({
+    const rl = readline.createInterface({
         input: fileStream,
         crlfDelay: Infinity
-      });
-      // Note: we use the crlfDelay option to recognize all instances of CR LF
-      // ('\r\n') in input.txt as a single line break.
-    
-      for await (const line of rl) {
+    });
+    // Note: we use the crlfDelay option to recognize all instances of CR LF
+    // ('\r\n') in input.txt as a single line break.
+    for await (const line of rl) {
         // Each line in input.txt will be successively available here as `line`.
-        console.log(`Line from file: ${line}`.includes("David"));
-      }
+        if (line.includes(searchByNameOrID)) {
+            console.log(`Line from file: ${line}`);
+        }
     }
-    ReadLineByLine();
+    console.log("readLineByLine IS Success !!!");
+    rl.close();
+}
 
+//This function checks if the user wants to read or write information
+async function writeOrReadFile() {
+    const rl = await readline.createInterface({ input, output, terminal: false });
+    let question = await rl.question(`Do you want to enter information or read R | W ?`);
+    while (!question) {
+        console.log("You did not enter your choice!!");
+        question = await rl.question(`Do you want to enter information or read R | W ?`);
+    }
+    if (question.includes("W")) {
+        enterDataToTxt();
+    } else if (question.includes("R")) {
+        readLineByLine();
+    } else {
 
+        console.log("you don't enter Something Right, Try again");
+        writeOrReadFile();
+       //I need to limit the function it's make a memory leak!!!!
 
+    }
+}
 
-
-
-// writeFile is not needed because appendFile also creates the initial file
-// Create an initial file
-// async function createTxtFile() {
-//     await writeFile("name.txt", "");
-//     console.log("success");
-// }
+//run program
+async function run() {
+    await writeOrReadFile();
+}
+run();
