@@ -1,7 +1,7 @@
 import { appendFile } from "node:fs/promises";
 import { stdin as input, stdout as output } from 'node:process';
 import * as readline from 'node:readline/promises';
-// import { asyncReadFile } from './readTextFile.js';
+import { asyncReadFile } from './readTextFile.js';
 import { createReadStream } from "node:fs";
 // process.version
 
@@ -75,21 +75,20 @@ async function readLineByLine() {
 //This function checks if the user wants to read or write information
 async function writeOrReadFile() {
     const rl = await readline.createInterface({ input, output, terminal: false });
-    let question = await rl.question(`Do you want to enter information or read R | W ?`);
+    let question = await rl.question(`Do you want to enter information or read  R | W ?`);
     while (!question) {
         console.log("You did not enter your choice!!");
-        question = await rl.question(`Do you want to enter information or read R | W ?`);
+        question = await rl.question(`Do you want to enter information or read  R | W ?`);
     }
     if (question.includes("W")) {
         enterDataToTxt();
     } else if (question.includes("R")) {
         readLineByLine();
-    } else {
-
+    }
+    else {
         console.log("you don't enter Something Right, Try again");
         writeOrReadFile();
-       //I need to limit the function it's make a memory leak!!!!
-
+        //I need to limit the function it's make a memory leak!!!!
     }
 }
 
